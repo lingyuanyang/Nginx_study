@@ -13,32 +13,40 @@ ngx_uint_t  ngx_pagesize;
 ngx_uint_t  ngx_pagesize_shift;
 ngx_uint_t  ngx_cacheline_size;
 
-
+/**
+ * 封装了malloc函数，并且添加了日志 malloc = Memory_ALLOCation
+ */
 void *
-ngx_alloc(size_t size, ngx_log_t *log)
+ngx_alloc(size_t size, ngx_log_t *log)//1024(Byte), 0x80d1c4c
 {
     void  *p;
-
+    //分配一块内存
+    //malloc是系统自带的方法用来分配内存，但是频繁使用这些函数分配和释放内存，会导致内存碎片，不容易让系统直接回收内存
     p = malloc(size);
+    //分配失败
     if (p == NULL) {
         ngx_log_error(NGX_LOG_EMERG, log, ngx_errno,
                       "malloc(%uz) failed", size);
     }
-
+    //分配成功
     ngx_log_debug2(NGX_LOG_DEBUG_ALLOC, log, 0, "malloc: %p:%uz", p, size);
 
     return p;
 }
 
-
+/**
+ * 调用ngx_alloc方法(calloc=call_alloc)，如果分配成，则调用ngx_memzero方法，将内存块设置为0
+ * #define ngx_memzero(buf, n)  (void) memset(buf, 0, n)
+ */
 void *
 ngx_calloc(size_t size, ngx_log_t *log)
 {
     void  *p;
-
+    //调用内存分配函数ngx_alloc（上面那个）
     p = ngx_alloc(size, log);
 
     if (p) {
+        //将内存块全部设置为0
         ngx_memzero(p, size);
     }
 

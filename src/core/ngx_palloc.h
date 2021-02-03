@@ -55,7 +55,7 @@ struct ngx_pool_large_s {
 * 数据区域结构
 */
 typedef struct {
-    u_char               *last;     /* 内存池中未使用内存的开始节点地址 */
+    u_char               *last;     /* 内存池中未使用unused内存的开始节点地址 */
     u_char               *end;      /* 内存池的结束地址 */
     ngx_pool_t           *next;     /* 指向下一个内存池 */
     ngx_uint_t            failed;   /* 失败次数 */
