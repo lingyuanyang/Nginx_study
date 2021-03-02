@@ -1,4 +1,4 @@
-
+﻿
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -15,34 +15,34 @@ static void* ngx_palloc_block(ngx_pool_t* pool, size_t size);
 static void* ngx_palloc_large(ngx_pool_t* pool, size_t size);
 
 /**
- * ����һ���ڴ��
+ * ����һ���ڴ��
  */
 ngx_pool_t*
 ngx_create_pool(size_t size, ngx_log_t* log)
 {
 	ngx_pool_t* p;
 	/**
-	 * �൱�ڷ���һ���ڴ� ngx_alloc(size, log)
+	 * �൱�ڷ���һ���ڴ� ngx_alloc(size, log)
 	 */
 	p = ngx_memalign(NGX_POOL_ALIGNMENT, size, log);
 	if (p == NULL) {
 		return NULL;
 	}
 	/**
-	 * Nginx�����һ����ڴ棬�����ڴ�ͷ�����ngx_pool_t�����ڴ�ص����ݽṹ
-	 * ngx_pool_data_t	p->d ����ڴ�ص����ݲ��֣��ʺ�С��p->max���ڴ��洢��
-	 * p->large ��Ŵ��ڴ���б�
-	 * p->cleanup ��ſ��Ա��ص������������ڴ�飨���ڴ�鲻һ�������ڴ��������䣩
+	 * Nginx�����һ����ڴ棬�����ڴ�ͷ�����ngx_pool_t�����ڴ�ص����ݽṹ
+	 * ngx_pool_data_t	p->d ����ڴ�ص����ݲ��֣��ʺ�С��p->max���ڴ��洢��
+	 * p->large ��Ŵ��ڴ���б�
+	 * p->cleanup ��ſ��Ա��ص�����������ڴ�飨���ڴ�鲻һ�������ڴ��������䣩
 	 */
-	p->d.last = (u_char*)p + sizeof(ngx_pool_t); //�ڴ濪ʼ��ַ��ָ��ngx_pool_t�ṹ��֮������ȡ��ʼλ��
-	p->d.end = (u_char*)p + size; //�ڴ������ַ
-	p->d.next = NULL; //��һ��ngx_pool_t �ڴ�ص�ַ
-	p->d.failed = 0; //ʧ�ܴ���
+	p->d.last = (u_char*)p + sizeof(ngx_pool_t); //�ڴ濪ʼ��ַ��ָ��ngx_pool_t�ṹ��֮������ȡ��ʼλ��
+	p->d.end = (u_char*)p + size; //�ڴ������ַ
+	p->d.next = NULL; //��һ��ngx_pool_t �ڴ�ص�ַ
+	p->d.failed = 0; //ʧ�ܴ���
 
 	size = size - sizeof(ngx_pool_t);
 	p->max = (size < NGX_MAX_ALLOC_FROM_POOL) ? size : NGX_MAX_ALLOC_FROM_POOL;
 
-	/* ֻ�л���صĸ��ڵ㣬�Ż��õ��������Щ  ���ӽڵ�ֻ������p->d.next,����ֻ����p->d����������*/
+	/* ֻ�л���صĸ��ڵ㣬�Ż��õ��������Щ  ���ӽڵ�ֻ������p->d.next,����ֻ����p->d����������*/
 	p->current = p;
 	p->chain = NULL;
 	p->large = NULL;
@@ -54,7 +54,7 @@ ngx_create_pool(size_t size, ngx_log_t* log)
 
 
 /**
- * �����ڴ�ء�
+ * �����ڴ�ء�
  */
 void
 ngx_destroy_pool(ngx_pool_t* pool)
@@ -62,9 +62,9 @@ ngx_destroy_pool(ngx_pool_t* pool)
 	ngx_pool_t* p, * n;
 	ngx_pool_large_t* l;
 	ngx_pool_cleanup_t* c;
-	/* ��������pool->cleanup���� */
+	/* ��������pool->cleanup���� */
 	for (c = pool->cleanup; c; c = c->next) {
-		/* handler Ϊһ�������Ļص����� */
+		/* handler Ϊһ������Ļص����� */
 		if (c->handler) {
 			ngx_log_debug1(NGX_LOG_DEBUG_ALLOC, pool->log, 0,
 				"run cleanup: %p", c);
@@ -78,7 +78,7 @@ ngx_destroy_pool(ngx_pool_t* pool)
 	 * we could allocate the pool->log from this pool
 	 * so we cannot use this log while free()ing the pool
 	 */
-	 /* ����pool->large������pool->largeΪ�����Ĵ������ڴ�飩  */
+	 /* ����pool->large�����pool->largeΪ�����Ĵ������ڴ�飩  */
 	for (l = pool->large; l; l = l->next) {
 		ngx_log_debug1(NGX_LOG_DEBUG_ALLOC, pool->log, 0, "free: %p", l->alloc);
 	}
@@ -99,7 +99,7 @@ ngx_destroy_pool(ngx_pool_t* pool)
 			ngx_free(l->alloc);
 		}
 	}
-	/* ���ڴ�ص�data������������ͷ� */
+	/* ���ڴ�ص�data������������ͷ� */
 	for (p = pool, n = pool->d.next; /* void */; p = n, n = n->d.next) {
 		ngx_free(p);
 
@@ -111,7 +111,7 @@ ngx_destroy_pool(ngx_pool_t* pool)
 
 
 /**
-* �����ڴ��
+* �����ڴ��
 */
 void
 ngx_reset_pool(ngx_pool_t* pool)
@@ -119,14 +119,23 @@ ngx_reset_pool(ngx_pool_t* pool)
 	ngx_pool_t* p;
 	ngx_pool_large_t* l;
 
-	/* ����pool->large������pool->largeΪ�����Ĵ������ڴ�飩  */
+	/* 清理pool->large链表（pool->large为单独的大数据内存块）  */
+	for (l = pool->large; l; l = l->next) {
+		if (l->alloc) {
+			ngx_free(l->alloc);
+		}
+	}
 	for (l = pool->large; l; l = l->next) {
 		if (l->alloc) {
 			ngx_free(l->alloc);
 		}
 	}
 
-	/* ѭ�����������ڴ��data����� p->d.last��data�������ݲ�������*/
+	/* 循环重新设置内存池data区域的 p->d.last；data区域数据并不擦除*/
+	for (p = pool; p; p = p->d.next) {
+		p->d.last = (u_char*)p + sizeof(ngx_pool_t);
+		p->d.failed = 0;
+	}
 	for (p = pool; p; p = p->d.next) {
 		p->d.last = (u_char*)p + sizeof(ngx_pool_t);
 		p->d.failed = 0;
@@ -138,27 +147,41 @@ ngx_reset_pool(ngx_pool_t* pool)
 }
 
 /**
-* �����ڴ����NGX_ALIGNMENT�Ŀ�align=1
-* �ڴ�ط���һ���ڴ棬����void����ָ��
+* 分配内存对齐NGX_ALIGNMENT的块align=1
+* 内存池分配一块内存，返回void类型指针
+*/
+void*
+ngx_palloc(ngx_pool_t* pool, size_t size)
+/**
+* 分配内存对齐NGX_ALIGNMENT的块align=1
 */
 void*
 ngx_palloc(ngx_pool_t* pool, size_t size)
 {
 #if !(NGX_DEBUG_PALLOC)
-	/* �ж�ÿ�η�����ڴ��С���������pool->max�����ƣ�����Ҫ�ߴ������ڴ������� */
+	/* 判断每次分配的内存大小，如果超出pool->max的限制，则需要走大数据内存分配策略 */
 	if (size <= pool->max) {
-		//����С���ڴ�
+		//分配小块内存
+		return ngx_palloc_small(pool, size, 1);
+	}
+	if (size <= pool->max) {
+		//分配小块内存
 		return ngx_palloc_small(pool, size, 1);
 	}
 #endif
-	//�������ڴ�
+	//�������ڴ�
 	return ngx_palloc_large(pool, size);
 }
 
 /**
-* �����ڴ��Сsize�Ŀ飬��������align=0
-* �ڴ�ط���һ���ڴ棬����void����ָ��
-* �����Ƕ������
+* 分配内存大小size的块，不做对齐align=0
+* 内存池分配一块内存，返回void类型指针
+* 不考虑对齐情况
+*/
+void*
+ngx_pnalloc(ngx_pool_t* pool, size_t size)
+/**
+* 分配内存大小size的块，不做对齐align=0
 */
 void*
 ngx_pnalloc(ngx_pool_t* pool, size_t size)
@@ -181,81 +204,110 @@ ngx_palloc_small(ngx_pool_t* pool, size_t size, ngx_uint_t align)
 
 	p = pool->current;
 	/*
-	* ѭ����ȡ�������p->d.next�ĸ�����ngx_pool_t�ڵ㣬
-	* ���ʣ��Ŀռ��������size���򷵻�ָ���ַ
+	* 循环读取缓存池链p->d.next的各个的ngx_pool_t节点，
+	* 如果剩余的空间可以容纳size，则返回指针地址
 	*
-	* ��ߵ�ѭ����ʵ�������ֻ��4�Σ�������Կ�ngx_palloc_block����
+	* 这边的循环，实际上最多只有4次，具体可以看ngx_palloc_block函数
 	* */
+	do {
+		m = p->d.last;
+	p = pool->current;
+
 	do {
 		m = p->d.last;
 
 		if (align) {
-			//�ڴ����NGX_ALIGNMENT�Ŀ�align=1
-			/* �������,����ʧ�ڴ棬��������ڴ�ʹ���ٶ� */
+			//内存对齐NGX_ALIGNMENT的块align=1
+			/* 对齐操作,会损失内存，但是提高内存使用速度 */
 			m = ngx_align_ptr(m, NGX_ALIGNMENT);
 		}
-		/*Ȼ�����endֵ��ȥ���ƫ��ָ��λ�õĴ�С�Ƿ�������Ҫ�����size��С��
-		������㣬���ƶ�lastָ��λ�ã������������䵽���ڴ��ַ����ʼ��ַ��*/
+		/*然后计算end值减去这个偏移指针位置的大小是否满足索要分配的size大小，
+		如果满足，则移动last指针位置，并返回所分配到的内存地址的起始地址；*/
+		if ((size_t)(p->d.end - m) >= size) {
+			p->d.last = m + size;
+		if (align) {
+			//内存对齐NGX_ALIGNMENT的块align=1
+			m = ngx_align_ptr(m, NGX_ALIGNMENT);
+		}
+		/*然后计算end值减去这个偏移指针位置的大小是否满足索要分配的size大小，
+		如果满足，则移动last指针位置，并返回所分配到的内存地址的起始地址；*/
 		if ((size_t)(p->d.end - m) >= size) {
 			p->d.last = m + size;
 
 			return m;
 		}
-		//��������㣬�������һ������
+		//��������㣬�������һ������
 		p = p->d.next;
 
 	} while (p);
 	/*
-	��������������ڴ��������δ�ҵ����ʴ�С���ڴ�鹩���䣬��ִ��ngx_palloc_block()�����䡣
-	ngx_palloc_block()����Ϊ���ڴ���ٷ���һ��block����block�Ĵ�СΪ������ǰ��ÿһ��block��С��ֵ��
-	һ���ڴ�����ɶ��block���������ġ�����ɹ��󣬽���block�����poll�������
-	ͬʱ��Ϊ��Ҫ�����size��С���ڴ���з��䣬�����ط����ڴ����ʼ��ַ��
+	如果遍历完整个内存池链表均未找到合适大小的内存块供分配，则执行ngx_palloc_block()来分配。
+	ngx_palloc_block()函数为该内存池再分配一个block，该block的大小为链表中前面每一个block大小的值。
+	一个内存池是由多个block链接起来的。分配成功后，将该block链入该poll链的最后，
+	同时，为所要分配的size大小的内存进行分配，并返回分配内存的起始地址。
 	*/
 	return ngx_palloc_block(pool, size);
 }
 
 /**
- * ����һ���µĻ���� ngx_pool_t
- * �µĻ���ػ������������ص� �������� ��pool->d->next��
+ * 申请一个新的缓存池 ngx_pool_t
+ * 新的缓存池会挂载在主缓存池的 数据区域 （pool->d->next）
  */
+static void*
+ngx_palloc_block(ngx_pool_t* pool, size_t size)
+
 static void*
 ngx_palloc_block(ngx_pool_t* pool, size_t size)
 {
 	u_char* m;
 	size_t       psize;
 	ngx_pool_t* p, * new;
-	//�����¿��ٵ��ڴ�ش�С����С��֮ǰ��poolһ��
+	//�����¿��ٵ��ڴ�ش�С����С��֮ǰ��poolһ��
 	psize = (size_t)(pool->d.end - (u_char*)pool);
 	/*
-	�¿���һ���ڴ��
-	ִ�а�NGX_POOL_ALIGNMENT���뷽ʽ���ڴ���䣬�����ܹ�����ɹ��������ִ�к�������Ƭ�Ρ�
+	�¿���һ���ڴ��
+	ִ�а�NGX_POOL_ALIGNMENT���뷽ʽ���ڴ���䣬�����ܹ�����ɹ��������ִ�к�������Ƭ�Ρ�
 	*/
 	m = ngx_memalign(NGX_POOL_ALIGNMENT, psize, pool->log);
 	if (m == NULL) {
 		return NULL;
 	}
-	//��ʼ���ڴ�ص�һЩ����
+	//��ʼ���ڴ�ص�һЩ����
 	new = (ngx_pool_t*)m;
 
 	new->d.end = m + psize;
 	new->d.next = NULL;
 	new->d.failed = 0;
-	//��mָ��ÿ��ڴ�ngx_pool_data_t�ṹ��֮����������ʼλ��
-	/* ����size��С���ڴ�飬����mָ���ַ */
+	//让m指向该块内存ngx_pool_data_t结构体之后数据区起始位置
+	/* 分配size大小的内存块，返回m指针地址 */
 	m += sizeof(ngx_pool_data_t);
-	//m�ڴ���뵽NGX_ALIGNMENT
+	//m内存对齐到NGX_ALIGNMENT
 	m = ngx_align_ptr(m, NGX_ALIGNMENT);
 	new->d.last = m + size;
-	//ʧ��4�������ƶ�currentָ��
+	//失败4次以上移动current指针
 	/**
-	 * ����ص�pool���ݽṹ������ӽڵ��ngx_pool_t���ݽṹ
-	 * �ӽڵ��ngx_pool_t���ݽṹ��ֻ�õ�pool->d�Ľṹ��ֻ��������
-	 * ÿ����һ���ӽڵ㣬p->d.failed�ͻ�+1�������ӳ���4���ӽڵ��ʱ��
-	 * pool->current��ָ�����µ��ӽڵ��ַ
+	 * 缓存池的pool数据结构会挂载子节点的ngx_pool_t数据结构
+	 * 子节点的ngx_pool_t数据结构中只用到pool->d的结构，只保存数据
+	 * 每添加一个子节点，p->d.failed就会+1，当添加超过4个子节点的时候，
+	 * pool->current会指向到最新的子节点地址
 	 *
-	 * ����߼���Ҫ��Ϊ�˷�ֹpool�ϵ��ӽڵ���࣬����ÿ��ngx_pallocѭ��pool->d.next����
-	 * ��pool->current���ó����µ��ӽڵ�֮��ÿ�����ѭ��4�Σ�����ȥ�����������������
+	 * 这个逻辑主要是为了防止pool上的子节点过多，导致每次ngx_palloc循环pool->d.next链表
+	 * 将pool->current设置成最新的子节点之后，每次最大循环4次，不会去遍历整个缓存池链表
 	 */
+	for (p = pool->current; p->d.next; p = p->d.next) {
+		if (p->d.failed++ > 4) {
+			pool->current = p->d.next;
+		}
+	}
+	new->d.end = m + psize;
+	new->d.next = NULL;
+	new->d.failed = 0;
+	//让m指向该块内存ngx_pool_data_t结构体之后数据区起始位置 
+	m += sizeof(ngx_pool_data_t);
+	//m内存对齐到NGX_ALIGNMENT
+	m = ngx_align_ptr(m, NGX_ALIGNMENT);
+	new->d.last = m + size;
+	//失败4次以上移动current指针
 	for (p = pool->current; p->d.next; p = p->d.next) {
 		if (p->d.failed++ > 4) {
 			pool->current = p->d.next;
@@ -270,29 +322,51 @@ ngx_palloc_block(ngx_pool_t* pool, size_t size)
 
 
 /**
- * ��������ڴ���С����pool->max���Ƶ�ʱ��,��Ҫ������pool->large��
+ * 当分配的内存块大小超出pool->max限制的时候,需要分配在pool->large上
  */
 static void*
 ngx_palloc_large(ngx_pool_t* pool, size_t size)
+static void*
+ngx_palloc_large(ngx_pool_t* pool, size_t size)
 {
-	//����һ��static�ĺ�����˵���ⲿ�������������ã������ṩ���ڲ�������õģ�  
-	//��nginx�ڽ����ڴ��������ʱ����������ȥ�ж��Ƿ��Ǵ���ڴ滹��С���ڴ棬  
-	//���ǽ����ڴ���亯��ȥ�жϣ������û�������˵����ȫ͸���ġ�
+	//这是一个static的函数，说明外部函数不会随便调用，而是提供给内部分配调用的，  
+	//即nginx在进行内存分配需求时，不会自行去判断是否是大块内存还是小块内存，  
+	//而是交由内存分配函数去判断，对于用户需求来说是完全透明的。
 	void* p;
 	ngx_uint_t         n;
 	ngx_pool_large_t* large;
-	//ngx_alloc��һ���򵥵ķ�װ��ֱ�ӵ��õ�malloc
-	/* ����һ���µĴ��ڴ�� */
+	//ngx_alloc是一个简单的封装，直接调用的malloc
+	/* 分配一块新的大内存块 */
+	p = ngx_alloc(size, pool->log);
+	if (p == NULL) {
+		return NULL;
+	}
+	//这是一个static的函数，说明外部函数不会随便调用，而是提供给内部分配调用的，  
+	//即nginx在进行内存分配需求时，不会自行去判断是否是大块内存还是小块内存，  
+	//而是交由内存分配函数去判断，对于用户需求来说是完全透明的。
+	void* p;
+	ngx_uint_t         n;
+	ngx_pool_large_t* large;
+	//ngx_alloc是一个简单的封装，直接调用的malloc
 	p = ngx_alloc(size, pool->log);
 	if (p == NULL) {
 		return NULL;
 	}
 
 	n = 0;
-	/*��������ڴ�����pool��large���У�
-      ����ָԭʼpool��֮ǰ�Ѿ������large�ڴ�������
+	/*将分配的内存链入pool的large链中，
+      这里指原始pool在之前已经分配过large内存的情况。
 	  */
-	 /* ȥpool->large�����ϲ�ѯ�Ƿ���NULL�ģ�ֻ�����������²�ѯ3�Σ���Ҫ�жϴ����ݿ��Ƿ��б��ͷŵģ����û����ֻ������*/
+	 /* 去pool->large链表上查询是否有NULL的，只在链表上往下查询3次，主要判断大数据块是否有被释放的，如果没有则只能跳出*/
+	for (large = pool->large; large; large = large->next) {
+		if (large->alloc == NULL) {
+			large->alloc = p;
+			return p;
+		}
+	n = 0;
+	/*将分配的内存链入pool的large链中，
+      这里指原始pool在之前已经分配过large内存的情况。
+	  */
 	for (large = pool->large; large; large = large->next) {
 		if (large->alloc == NULL) {
 			large->alloc = p;
@@ -303,15 +377,31 @@ ngx_palloc_large(ngx_pool_t* pool, size_t size)
 			break;
 		}
 	}
-	/*��ԭʼpool��û��large��ʱ,�����½���һ��pool
-      ����һ��ngx_pool_large_t�ṹ��������large�ڴ�
+	/*当原始pool中没有large块时,比如新建的一块pool
+      分配一块ngx_pool_large_t结构体来管理large内存
 	*/
 	large = ngx_palloc_small(pool, sizeof(ngx_pool_large_t), 1);
 	if (large == NULL) {
-		ngx_free(p);//�������ʧ�ܣ�ɾ���ڴ��
+		ngx_free(p);//如果分配失败，删除内存块
 		return NULL;
 	}
-	//�����large����pool
+	//将这块large加入pool
+	large->alloc = p;
+	large->next = pool->large;
+	pool->large = large;
+		if (n++ > 3) {
+			break;
+		}
+	}
+	/*当原始pool中没有large块时,比如新建的一块pool
+      分配一块ngx_pool_large_t结构体来管理large内存
+	*/
+	large = ngx_palloc_small(pool, sizeof(ngx_pool_large_t), 1);
+	if (large == NULL) {
+		ngx_free(p);
+		return NULL;
+	}
+	//将这块large加入pool
 	large->alloc = p;
 	large->next = pool->large;
 	pool->large = large;
@@ -346,13 +436,21 @@ ngx_pmemalign(ngx_pool_t* pool, size_t size, size_t alignment)
 
 
 /**
- * ���ڴ���ͷ�  pool->large
+ * ���ڴ���ͷ�  pool->large
  */
 ngx_int_t
 ngx_pfree(ngx_pool_t* pool, void* p)
 {
 	ngx_pool_large_t* l;
-	/* ��pool->large����ѭ������������ֻ�ͷ��������򣬲��ͷ�ngx_pool_large_t���ݽṹ*/
+	/* 在pool->large链上循环搜索，并且只释放内容区域，不释放ngx_pool_large_t数据结构*/
+	for (l = pool->large; l; l = l->next) {
+		if (p == l->alloc) {
+			ngx_log_debug1(NGX_LOG_DEBUG_ALLOC, pool->log, 0,
+				"free: %p", l->alloc);
+			ngx_free(l->alloc);
+			l->alloc = NULL;
+	ngx_pool_large_t* l;
+
 	for (l = pool->large; l; l = l->next) {
 		if (p == l->alloc) {
 			ngx_log_debug1(NGX_LOG_DEBUG_ALLOC, pool->log, 0,
@@ -382,29 +480,43 @@ ngx_pcalloc(ngx_pool_t* pool, size_t size)
 }
 
 /**
- * ����һ���������ڻص����������ڴ����ڴ�
- * �ڴ���Ծ���p->d��p->large��
+ * 分配一个可以用于回调函数清理内存块的内存
+ * 内存块仍旧在p->d或p->large上
  *
- * ngx_pool_t�е�cleanup�ֶι�����һ���������������������ÿһ���¼��һ���������Ҫ�ͷŵ���Դ��
- * �������������ÿ���ڵ�����������Դ���ȥ�ͷţ�����˵���ġ���Ҳ���ṩ�˷ǳ��������ԡ�
- * ��ζ�ţ�ngx_pool_t���������Թ����ڴ棬ͨ��������ƣ�Ҳ���Թ����κ���Ҫ�ͷŵ���Դ��
- * ���磬�ر��ļ�������ɾ���ļ��ȵȵġ��������ǿ�һ���������ÿ���ڵ������
+ * ngx_pool_t中的cleanup字段管理着一个特殊的链表，该链表的每一项都记录着一个特殊的需要释放的资源。
+ * 对于这个链表中每个节点所包含的资源如何去释放，是自说明的。这也就提供了非常大的灵活性。
+ * 意味着，ngx_pool_t不仅仅可以管理内存，通过这个机制，也可以管理任何需要释放的资源，
+ * 例如，关闭文件，或者删除文件等等的。下面我们看一下这个链表每个节点的类型
  *
- * һ������������
- * 1. �ļ�������
- * 2. �ⲿ�Զ���ص����������������ڴ�
+ * 一般分两种情况：
+ * 1. 文件描述符
+ * 2. 外部自定义回调函数可以来清理内存
  */
+ngx_pool_cleanup_t*
+ngx_pool_cleanup_add(ngx_pool_t* p, size_t size)
+
 ngx_pool_cleanup_t*
 ngx_pool_cleanup_add(ngx_pool_t* p, size_t size)
 {
 	ngx_pool_cleanup_t* c;
-	/* ����һ��ngx_pool_cleanup_t */
+	/* 分配一个ngx_pool_cleanup_t */
+	c = ngx_palloc(p, sizeof(ngx_pool_cleanup_t));
+	if (c == NULL) {
+		return NULL;
+	}
+	ngx_pool_cleanup_t* c;
+
 	c = ngx_palloc(p, sizeof(ngx_pool_cleanup_t));
 	if (c == NULL) {
 		return NULL;
 	}
 
-	/* ���size !=0 ��pool->d��pool->large����һ���ڴ�� */
+	/* 如果size !=0 从pool->d或pool->large分配一个内存块 */
+	if (size) {
+		c->data = ngx_palloc(p, size);
+		if (c->data == NULL) {
+			return NULL;
+		}
 	if (size) {
 		c->data = ngx_palloc(p, size);
 		if (c->data == NULL) {
@@ -415,7 +527,14 @@ ngx_pool_cleanup_add(ngx_pool_t* p, size_t size)
 	else {
 		c->data = NULL;
 	}
-	/* handlerΪ�ص����� */
+	/* handler为回调函数 */
+	c->handler = NULL;
+	c->next = p->cleanup;
+	}
+	else {
+		c->data = NULL;
+	}
+
 	c->handler = NULL;
 	c->next = p->cleanup;
 
@@ -427,8 +546,8 @@ ngx_pool_cleanup_add(ngx_pool_t* p, size_t size)
 }
 
 /**
- * ��� p->cleanup�����ϵ��ڴ�飨��Ҫ���ļ���������
- * �ص�������ngx_pool_cleanup_file
+ * ��� p->cleanup�����ϵ��ڴ�飨��Ҫ���ļ���������
+ * �ص�������ngx_pool_cleanup_file
  */
 void
 ngx_pool_run_cleanup_file(ngx_pool_t* p, ngx_fd_t fd)
@@ -451,8 +570,8 @@ ngx_pool_run_cleanup_file(ngx_pool_t* p, ngx_fd_t fd)
 }
 
 /**
- * �ر��ļ��ص�����
- * ngx_pool_run_cleanup_file����ִ�е�ʱ�����˴˺�����Ϊ�ص������ģ����ᱻ����
+ * �ر��ļ��ص�����
+ * ngx_pool_run_cleanup_file����ִ�е�ʱ�����˴˺�����Ϊ�ص������ģ����ᱻ����
  */
 void
 ngx_pool_cleanup_file(void* data)
@@ -469,7 +588,7 @@ ngx_pool_cleanup_file(void* data)
 }
 
 /**
- * ɾ���ļ��ص�����
+ * ɾ���ļ��ص�����
  */
 void
 ngx_pool_delete_file(void* data)

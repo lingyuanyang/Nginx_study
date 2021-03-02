@@ -1,4 +1,4 @@
-
+ï»¿
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -14,39 +14,41 @@ ngx_uint_t  ngx_pagesize_shift;
 ngx_uint_t  ngx_cacheline_size;
 
 /**
- * ·â×°ÁËmallocº¯Êý£¬²¢ÇÒÌí¼ÓÁËÈÕÖ¾ malloc = Memory_ALLOCation
+ * ï¿½ï¿½×°ï¿½ï¿½mallocï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾ malloc = Memory_ALLOCation
  */
 void *
 ngx_alloc(size_t size, ngx_log_t *log)//1024(Byte), 0x80d1c4c
 {
     void  *p;
-    //·ÖÅäÒ»¿éÄÚ´æ
-    //mallocÊÇÏµÍ³×Ô´øµÄ·½·¨ÓÃÀ´·ÖÅäÄÚ´æ£¬µ«ÊÇÆµ·±Ê¹ÓÃÕâÐ©º¯Êý·ÖÅäºÍÊÍ·ÅÄÚ´æ£¬»áµ¼ÖÂÄÚ´æËéÆ¬£¬²»ÈÝÒ×ÈÃÏµÍ³Ö±½Ó»ØÊÕÄÚ´æ
+    //åˆ†é…ä¸€å—å†…å­˜
+    //mallocæ˜¯ç³»ç»Ÿè‡ªå¸¦çš„æ–¹æ³•ç”¨æ¥åˆ†é…å†…å­˜ï¼Œä½†æ˜¯é¢‘ç¹ä½¿ç”¨è¿™äº›å‡½æ•°åˆ†é…å’Œé‡Šæ”¾å†…å­˜ï¼Œä¼šå¯¼è‡´å†…å­˜ç¢Žç‰‡ï¼Œä¸å®¹æ˜“è®©ç³»ç»Ÿç›´æŽ¥å›žæ”¶å†…å­˜
+    //åˆ†é…ä¸€å—å†…å­˜
     p = malloc(size);
-    //·ÖÅäÊ§°Ü
+    //ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½
     if (p == NULL) {
         ngx_log_error(NGX_LOG_EMERG, log, ngx_errno,
                       "malloc(%uz) failed", size);
     }
-    //·ÖÅä³É¹¦
+    //ï¿½ï¿½ï¿½ï¿½É¹ï¿½
     ngx_log_debug2(NGX_LOG_DEBUG_ALLOC, log, 0, "malloc: %p:%uz", p, size);
 
     return p;
 }
 
 /**
- * µ÷ÓÃngx_alloc·½·¨(calloc=call_alloc)£¬Èç¹û·ÖÅä³É£¬Ôòµ÷ÓÃngx_memzero·½·¨£¬½«ÄÚ´æ¿éÉèÖÃÎª0
+ * ï¿½ï¿½ï¿½ï¿½ngx_allocï¿½ï¿½ï¿½ï¿½(calloc=call_alloc)ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ngx_memzeroï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª0
  * #define ngx_memzero(buf, n)  (void) memset(buf, 0, n)
  */
 void *
 ngx_calloc(size_t size, ngx_log_t *log)
 {
     void  *p;
-    //µ÷ÓÃÄÚ´æ·ÖÅäº¯Êýngx_alloc£¨ÉÏÃæÄÇ¸ö£©
+    //è°ƒç”¨å†…å­˜åˆ†é…å‡½æ•°ngx_allocï¼ˆä¸Šé¢é‚£ä¸ªï¼‰
+    //è°ƒç”¨å†…å­˜åˆ†é…å‡½æ•°
     p = ngx_alloc(size, log);
 
     if (p) {
-        //½«ÄÚ´æ¿éÈ«²¿ÉèÖÃÎª0
+        //ï¿½ï¿½ï¿½Ú´ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª0
         ngx_memzero(p, size);
     }
 
