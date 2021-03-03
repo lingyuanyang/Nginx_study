@@ -17,6 +17,8 @@
  * NGX_MAX_ALLOC_FROM_POOL should be (ngx_pagesize - 1), i.e. 4095 on x86.
  * On Windows NT it decreases a number of locked pages in a kernel.
  */
+//NGX_MAX_ALLOC_FROM_POOL是一个内存池分配的最大容量，值为ngx_pagesize - 1，ngx_pagesize是一块内存页的大小，在x86下通常为4096
+//4k=4*1024=4096
 #define NGX_MAX_ALLOC_FROM_POOL  (ngx_pagesize - 1)
 
 #define NGX_DEFAULT_POOL_SIZE    (16 * 1024)
@@ -68,9 +70,9 @@ struct ngx_pool_s {
     ngx_pool_data_t       d;        /* 内存池的数据区域*/
     size_t                max;      /* 最大每次可分配内存 */
     ngx_pool_t           *current;  /* 指向当前的内存池指针地址。ngx_pool_t链表上最后一个缓存池结构*/
-    ngx_chain_t          *chain;    /* 缓冲区链表 */
-    ngx_pool_large_t     *large;    /* 存储大数据的链表 */
-    ngx_pool_cleanup_t   *cleanup;  /* 可自定义回调函数，清除内存块分配的内存 */
+    ngx_chain_t          *chain;    /* 缓冲区链表，chain结构体指针，类似一个链表，链表节点数据为一个buf */
+    ngx_pool_large_t     *large;    /* 存储大数据的链表，分配大块内存用，即超过max的内存请求 */
+    ngx_pool_cleanup_t   *cleanup;  /* 可自定义回调函数，清除内存块分配的内存，挂载一些内存池释放的时候，同时释放的资源 */
     ngx_log_t            *log;      /* 日志 */
 };
 

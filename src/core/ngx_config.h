@@ -92,12 +92,23 @@ typedef intptr_t        ngx_flag_t;
 #define NGX_MAX_INT_T_VALUE  9223372036854775807
 #endif
 
-
+//Nginx中的内存对齐
 #ifndef NGX_ALIGNMENT
-#define NGX_ALIGNMENT   sizeof(unsigned long)    /* platform word */
+#define NGX_ALIGNMENT   sizeof(unsigned long)    /* platform word */ //4byte
 #endif
-
+//把d对齐到a的整数倍
+// 两个参数d和a，d代表未对齐内存地址，a代表对齐单位，必须为2的幂。假设a是8，那么用二进制表示就是1000，a-1就是0111.
+// d + a-1之后在第四位可能进位一次（如果d的前三位不为000，则会进位。反之，则不会），
+// ~（a-1)是1111...1000，&之后的结果就自然在4位上对齐了。注意二进制中第四位的单位是8，也就是以8为单位对齐。
+// 例如，d=17,a=8,则结果为24.所以该表达式的结果就是对齐了的内存地址
+//00000000000000000000000000010001   d=17
+//00000000000000000000000000001000   a=8
+//00000000000000000000000000000111   a-1=8-1=7
+//00000000000000000000000000011000   d + (a - 1)=24
+//11111111111111111111111111111000   ~(a-1)
+//00000000000000000000000000011000   ((d) + (a - 1)) & ~(a - 1) = 24
 #define ngx_align(d, a)     (((d) + (a - 1)) & ~(a - 1))
+//把指针p的地址对齐到a的整数倍
 #define ngx_align_ptr(p, a)                                                   \
     (u_char *) (((uintptr_t) (p) + ((uintptr_t) a - 1)) & ~((uintptr_t) a - 1))
 
